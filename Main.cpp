@@ -4,12 +4,14 @@
 #include <iostream>
 #include <string.h>
 #include "Node.h"
+#include "BinaryNode.h"
 
 using namespace std;
 
 //prototypes
 Node* peek(Node* head);
 Node* pop(Node* & head);
+char popValue(Node* & head);
 void push(Node* & head, Node* data);
 void deleteAllNodes(Node* & head);
 void display(Node* current);
@@ -19,11 +21,13 @@ bool isOperator(char c);
 void deleteWhitespace(char* input);
 int getPrecedence(char c);
 
+
 int main(){
 
   Node* inputHead = NULL;
   Node* operatorHead = NULL;
   Node* outputHead = NULL;
+  BinaryNode* expTreeHead = NULL;
   Node* temp;
   bool running = true;
   char input[81];
@@ -107,9 +111,25 @@ int main(){
       }
       //delete input nodes
       deleteAllNodes(inputHead);
-      //print out result
-      cout << "Postfix Notation: ";
-      display(outputHead);
+      //prompt the user if they want the notation in infix, prefix, or postfix
+      //build the expression tree
+      if(outputHead != NULL){
+        treeNode = new BinaryNode(popValue(outputHead));
+      }
+      buildTree(treeNode, outputHead);
+      while(!strcmp(input, "prefix") == 0 && !strcmp(input, "infix") == 0 && !strcmp(input, "postfix") == 0){
+        cout << "Do you wish to print the expression tree in 'prefix', 'infix', or 'postfix' notation?: ";
+        getInput(input);
+        if(strcmp(input, "prefix") == 0){
+          printPrefix(expTreeHead);
+        }
+        if(strcmp(input, "infix") == 0){
+          printInfix(expTreeHead);
+        }
+        if(strcmp(input, "postfix") == 0){
+          printPostfix(expTreeHead);
+        }
+      }
       cout << endl << endl;
     }
     else{
@@ -140,6 +160,54 @@ void push(Node* & head, Node* data){
   }
 }
 
+void buildTree(BinaryNode* treeNode, Node* outputHead){
+  while(outputHead != NULL){
+    BinaryNode* temp = new BinaryNode(popValue(outputHead));
+    if(treeNode->getRightChild() == NULL){
+      treeNode->setRightChild(temp);
+      if(isOperator(temp->getValue()){
+        buildTree(temp, outputHead);
+      }
+    }
+    else if(treeNode->getLeftChild() == NULL){
+      treeNode->setRightChild(temp);
+      if(isOperator(temp->getValue()){
+        buildTree(temp, outputHead);
+      }
+    }
+  }
+}
+
+void printPostfix(BinaryNode* treeNode){
+  if(treeNode->getLeftChild() != NULL){
+    printPostfix(treeNode->getLeftChild());
+  }
+  if(treeNode->getRightChild() != NULL){
+    printPostfix(treeNode->getRightChild());
+  }
+  cout << treeNode->getValue();
+}
+
+void printInfix(BinaryNode* treeNode){
+  if(treeNode->getLeftChild() != NULL){
+    printInfix(treeNode->getLeftChild());
+  }
+  cout << treeNode->getValue();
+  if(treeNode->getRightChild() != NULL){
+    printInfix(treeNode->getRightChild());
+  }
+}
+
+void printPrefix(BinaryNode* treeNode){
+  cout << treeNode->getValue();
+  if(treeNode->getLeftChild() != NULL){
+    printPrefix(treeNode->getLeftChild());
+  }
+  if(treeNode->getRightChild() != NULL){
+    printPrefix(treeNode->getRightChild());
+  }
+}
+
 //removes and returns the last node of a LL
 Node* pop(Node* & head){
   Node* temp;
@@ -158,6 +226,30 @@ Node* pop(Node* & head){
       current = current->getNext();
     }
     temp = new Node(current->getNext()->getValue());
+    delete current->getNext();
+    current->setNext(NULL);
+  }
+  return temp;
+}
+
+//removes the last node of a LL and returns its value
+char popValue(Node* & head){
+  Node* temp;
+  if(head == NULL){
+    return head;
+  }
+  else if(head->getNext() == NULL){
+    temp = head->getValue();
+    delete head;
+    head = NULL;
+  }
+  else{
+    Node* current = head;
+    //get current equal to second to last node
+    while(current->getNext()->getNext() != NULL){
+      current = current->getNext();
+    }
+    temp = current->getNext()->getValue();
     delete current->getNext();
     current->setNext(NULL);
   }
