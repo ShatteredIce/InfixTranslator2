@@ -1,5 +1,5 @@
 //C++ Project 10 - InfixTranslator - 2/27/17
-//Creates an expression tree for input in infix notation, then outpus prefix, infix, or postfix notation to the console
+//Creates an expression tree for input in infix notation, then outputs prefix, infix, or postfix notation to the console
 
 #include <iostream>
 #include <string.h>
@@ -18,7 +18,7 @@ void display(Node* current);
 void getInput(char* input);
 bool isValidInput(char* input);
 bool isOperator(char c);
-void deleteWhitespace(char* input);
+void trimWhitespace(char* input);
 int getPrecedence(char c);
 void buildTree(BinaryNode* treeNode, Node* outputHead);
 void printPostfix(BinaryNode* treeNode);
@@ -51,10 +51,12 @@ int main(){
       cout << "\nProgram Terminated." << endl;
       running = false;
     }
+
     //if the input is only made up of valid characters
     else if(isValidInput(input) && strlen(input) > 0){
       //clear stacks if they are not empty
       if(outputHead != NULL){
+        cout << outputHead->getNext()->getValue() <<endl;
         deleteAllNodes(outputHead);
       }
       if(operatorHead != NULL){
@@ -67,6 +69,7 @@ int main(){
         temp->setNext(new Node(input[i]));
         temp = temp->getNext();
       }
+
 
       //shunting yard algorithm
       temp = inputHead;
@@ -118,21 +121,24 @@ int main(){
       }
       //delete input nodes
       deleteAllNodes(inputHead);
-      //prompt the user if they want the notation in infix, prefix, or postfix
       //build the expression tree
       if(outputHead != NULL){
         expTreeHead = new BinaryNode(popValue(outputHead));
       }
       buildTree(expTreeHead, outputHead);
+      outputHead = NULL;
+      //prompt the user if they want the notation in infix, prefix, or postfix
       cout << "\nDo you wish to print the expression tree? \nCommands: 'prefix', 'infix', 'postfix' or 'next' to continue\n";
       while(!strcmp(input, "next") == 0){
         cout << "Input: ";
         getInput(input);
+        //print prefix notation
         if(strcmp(input, "prefix") == 0){
           cout << "\nPrefix Notation: ";
           printPrefix(expTreeHead);
           cout << "\n\n";
         }
+        //print infix notation
         else if(strcmp(input, "infix") == 0){
           cout << "\nInfix Notation: ";
           printInfix(expTreeHead);
@@ -145,6 +151,7 @@ int main(){
             cout << "\n\n";
           }
         }
+        //print postfix notation
         else if(strcmp(input, "postfix") == 0){
           cout << "\nPostfix Notation: ";
           printPostfix(expTreeHead);
@@ -155,6 +162,7 @@ int main(){
         }
       }
       cout << endl;
+      //delete the tree to avoid memory leak when the head is set to another new BinaryNode
       deleteTree(expTreeHead);
       expTreeHead = NULL;
     }
@@ -186,6 +194,7 @@ void push(Node* & head, Node* data){
   }
 }
 
+//builds the expression tree
 void buildTree(BinaryNode* treeNode, Node* outputHead){
   while(outputHead != NULL){
     if(treeNode->getRightChild() != NULL && treeNode->getLeftChild() != NULL){
@@ -210,6 +219,7 @@ void buildTree(BinaryNode* treeNode, Node* outputHead){
   }
 }
 
+//prints an expression tree in postfix notation
 void printPostfix(BinaryNode* treeNode){
   if(treeNode->getLeftChild() != NULL){
     printPostfix(treeNode->getLeftChild());
@@ -220,6 +230,7 @@ void printPostfix(BinaryNode* treeNode){
   cout << treeNode->getValue();
 }
 
+//prints an expression tree in infix notation
 void printInfix(BinaryNode* treeNode){
   if(treeNode->getLeftChild() != NULL){
     printInfix(treeNode->getLeftChild());
@@ -230,6 +241,7 @@ void printInfix(BinaryNode* treeNode){
   }
 }
 
+//prints an expression tree in prefix notation
 void printPrefix(BinaryNode* treeNode){
   cout << treeNode->getValue();
   if(treeNode->getLeftChild() != NULL){
@@ -343,20 +355,27 @@ bool isOperator(char c){
 void getInput(char* input){
   fill(input, input + INPUT_SIZE, ' ');
   cin.getline(input, INPUT_SIZE);
-  deleteWhitespace(input);
+  trimWhitespace(input);
 }
 
-//deletes all whitespace from a char*
-void deleteWhitespace(char* text){
+//remove extra whitespaces to make sure input is compared as intended
+void trimWhitespace(char* text){
   char* newText = text;
+  char lastChar = ' ';
   while(*text != '\0'){
-    if(!(*text == ' ')){
+    if(!(*text == ' ' && lastChar == ' ')){
       *newText = *text;
+      lastChar = *text;
       newText++;
     }
     text++;
   }
-  *newText = '\0';
+  if(*(newText-1) != ' '){
+    *newText = '\0';
+  }
+  else{
+    *(newText-1) = '\0';
+  }
 }
 
 //returns operator precedence
