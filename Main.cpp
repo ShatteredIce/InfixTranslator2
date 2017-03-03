@@ -20,7 +20,13 @@ bool isValidInput(char* input);
 bool isOperator(char c);
 void deleteWhitespace(char* input);
 int getPrecedence(char c);
+void buildTree(BinaryNode* treeNode, Node* outputHead);
+void printPostfix(BinaryNode* treeNode);
+void printInfix(BinaryNode* treeNode);
+void printPrefix(BinaryNode* treeNode);
+void deleteTree(BinaryNode*  treeNode);
 
+const int INPUT_SIZE = 201;
 
 int main(){
 
@@ -30,7 +36,8 @@ int main(){
   BinaryNode* expTreeHead = NULL;
   Node* temp;
   bool running = true;
-  char input[81];
+  bool easterEgg = false;
+  char input[INPUT_SIZE];
 
   cout << "\n-----Infix Translator v1.0-----\n";
   cout << "Converts expressions into prefix or postfix notation\n";
@@ -114,23 +121,42 @@ int main(){
       //prompt the user if they want the notation in infix, prefix, or postfix
       //build the expression tree
       if(outputHead != NULL){
-        treeNode = new BinaryNode(popValue(outputHead));
+        expTreeHead = new BinaryNode(popValue(outputHead));
       }
-      buildTree(treeNode, outputHead);
-      while(!strcmp(input, "prefix") == 0 && !strcmp(input, "infix") == 0 && !strcmp(input, "postfix") == 0){
-        cout << "Do you wish to print the expression tree in 'prefix', 'infix', or 'postfix' notation?: ";
+      buildTree(expTreeHead, outputHead);
+      cout << "\nDo you wish to print the expression tree? \nCommands: 'prefix', 'infix', 'postfix' or 'next' to continue\n";
+      while(!strcmp(input, "next") == 0){
+        cout << "Input: ";
         getInput(input);
         if(strcmp(input, "prefix") == 0){
+          cout << "\nPrefix Notation: ";
           printPrefix(expTreeHead);
+          cout << "\n\n";
         }
-        if(strcmp(input, "infix") == 0){
+        else if(strcmp(input, "infix") == 0){
+          cout << "\nInfix Notation: ";
           printInfix(expTreeHead);
+          if(easterEgg == false){
+            cout << "\n";
+            cout << "Achievement Unlocked! Infix -> Infix\n\n";
+            easterEgg = true;
+          }
+          else{
+            cout << "\n\n";
+          }
         }
-        if(strcmp(input, "postfix") == 0){
+        else if(strcmp(input, "postfix") == 0){
+          cout << "\nPostfix Notation: ";
           printPostfix(expTreeHead);
+          cout << "\n\n";
+        }
+        else if(!strcmp(input, "next") == 0){
+          cout << "<Invalid Input>\n";
         }
       }
-      cout << endl << endl;
+      cout << endl;
+      deleteTree(expTreeHead);
+      expTreeHead = NULL;
     }
     else{
       cout << "<Invalid Input>\n\n";
@@ -162,16 +188,22 @@ void push(Node* & head, Node* data){
 
 void buildTree(BinaryNode* treeNode, Node* outputHead){
   while(outputHead != NULL){
+    if(treeNode->getRightChild() != NULL && treeNode->getLeftChild() != NULL){
+      break;
+    }
     BinaryNode* temp = new BinaryNode(popValue(outputHead));
+    //cout << "popped" << temp->getValue() << endl;
     if(treeNode->getRightChild() == NULL){
+      //cout << "set right child of " << treeNode->getValue() << " to " << temp->getValue() << endl;
       treeNode->setRightChild(temp);
-      if(isOperator(temp->getValue()){
+      if(isOperator(temp->getValue())){
         buildTree(temp, outputHead);
       }
     }
     else if(treeNode->getLeftChild() == NULL){
-      treeNode->setRightChild(temp);
-      if(isOperator(temp->getValue()){
+      //cout << "set left child of " << treeNode->getValue() << " to " << temp->getValue() << endl;
+      treeNode->setLeftChild(temp);
+      if(isOperator(temp->getValue())){
         buildTree(temp, outputHead);
       }
     }
@@ -234,9 +266,9 @@ Node* pop(Node* & head){
 
 //removes the last node of a LL and returns its value
 char popValue(Node* & head){
-  Node* temp;
+  char temp;
   if(head == NULL){
-    return head;
+    return '\0';
   }
   else if(head->getNext() == NULL){
     temp = head->getValue();
@@ -267,6 +299,20 @@ void deleteAllNodes(Node* & head){
   head = NULL;
 }
 
+//deletes all nodes in a binary tree and sets the head to null
+void deleteTree(BinaryNode*  treeNode){
+  if(treeNode->getRightChild() != NULL){
+    deleteTree(treeNode->getRightChild());
+    treeNode->setRightChild(NULL);
+  }
+  if(treeNode->getLeftChild() != NULL){
+    deleteTree(treeNode->getLeftChild());
+    treeNode->setLeftChild(NULL);
+  }
+  delete treeNode;
+  //treeNode = NULL;
+}
+
 //displays all nodes in the LL
 void display(Node* current){
   if(current != NULL){
@@ -295,8 +341,8 @@ bool isOperator(char c){
 
 //stores user input into a char*
 void getInput(char* input){
-  fill(input, input + 81, ' ');
-  cin.getline(input, 81);
+  fill(input, input + INPUT_SIZE, ' ');
+  cin.getline(input, INPUT_SIZE);
   deleteWhitespace(input);
 }
 
