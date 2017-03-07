@@ -6,16 +6,20 @@ using namespace std;
 
 //Constructor: stores a char, sets next to NULL
 BinaryNode::BinaryNode(char newToken){
-  token = newToken;
+  token = new char[81];
+  token[0] = newToken;
   leftchild = NULL;
   rightchild = NULL;
 }
 
-//returns the value stored in the node
-char BinaryNode::getValue(){
+//returns the char array stored in the node
+char* BinaryNode::getValue(){
   return token;
 }
 
+char BinaryNode::getToken(){
+  return token[0];
+}
  //sets the leftchild of this node
 void BinaryNode::setLeftChild(BinaryNode* newNode){
   leftchild = newNode;

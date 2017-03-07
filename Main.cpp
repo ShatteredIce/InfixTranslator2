@@ -18,6 +18,7 @@ void display(Node* current);
 void getInput(char* input);
 bool isValidInput(char* input);
 bool isOperator(char c);
+bool isOperator(char* c);
 void trimWhitespace(char* input);
 int getPrecedence(char c);
 void buildTree(BinaryNode* treeNode, Node* outputHead);
@@ -74,22 +75,31 @@ int main(){
       //shunting yard algorithm
       temp = inputHead;
       while(temp != NULL){
+        //cout << temp->getValue() << endl;
         //puts value into output stack if it is a digit
         if(isdigit(temp->getValue())){
           push(outputHead, new Node(temp->getValue()));
         }
         //if value is an operator
         else if(isOperator(temp->getValue())){
+          if(peek(outputHead)->getValue() != ' '){
+            push(outputHead, new Node(' '));
+          }
           //while there is an operator token o2 at the top of the operator stack and
           //current operator is left-associative and its precedence is less than or equal to that of o2
           while(peek(operatorHead) != NULL && temp->getValue() != '^' &&
           getPrecedence(temp->getValue()) <= getPrecedence(peek(operatorHead)->getValue())){
             //pop o2 off the operator stack and push onto the output queue
             push(outputHead, pop(operatorHead));
+            push(outputHead, new Node(' '));
           }
           //push current operator onto operator stack
           push(operatorHead, new Node(temp->getValue()));
         }
+        // //if value is space, push it to the output stack if there is no previous space
+        // else if(temp->getValue() == ' ' && peek(outputHead)->getValue() != ' '){
+        //   push(outputHead, new Node(temp->getValue()));
+        // }
         //if value is left parentheses, push it onto the operator stack
         else if(temp->getValue() == '('){
           push(operatorHead, new Node(temp->getValue()));
@@ -110,17 +120,23 @@ int main(){
         temp = temp->getNext();
       }
       //while there are no more tokens to read, empty the operator stack
+
       while(peek(operatorHead) != NULL){
         if(peek(operatorHead)->getValue() == '('){
           cout << "<Mismatched Parentheses Detected>\n";
           pop(operatorHead);
         }
         else{
+          push(outputHead, new Node(' '));
           push(outputHead, pop(operatorHead));
         }
       }
       //delete input nodes
       deleteAllNodes(inputHead);
+      //print out result
+      cout << "Postfix Notation: ";
+      display(outputHead);
+      cout << endl << endl;
       //build the expression tree
       if(outputHead != NULL){
         expTreeHead = new BinaryNode(popValue(outputHead));
@@ -346,6 +362,14 @@ bool isValidInput(char* input){
 //checks if user input is an operator
 bool isOperator(char c){
   if(c == '+' || c == '-' || c == '*' || c == '/' || c == '^'){
+    return true;
+  }
+  return false;
+}
+
+//checks if user input is an operator
+bool isOperator(char* c){
+  if(*c == '+' || *c == '-' || *c == '*' || *c == '/' || *c == '^'){
     return true;
   }
   return false;
