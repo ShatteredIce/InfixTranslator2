@@ -71,7 +71,6 @@ int main(){
         temp = temp->getNext();
       }
 
-
       //shunting yard algorithm
       temp = inputHead;
       while(temp != NULL){
@@ -96,10 +95,6 @@ int main(){
           //push current operator onto operator stack
           push(operatorHead, new Node(temp->getValue()));
         }
-        // //if value is space, push it to the output stack if there is no previous space
-        // else if(temp->getValue() == ' ' && peek(outputHead)->getValue() != ' '){
-        //   push(outputHead, new Node(temp->getValue()));
-        // }
         //if value is left parentheses, push it onto the operator stack
         else if(temp->getValue() == '('){
           push(operatorHead, new Node(temp->getValue()));
@@ -120,7 +115,6 @@ int main(){
         temp = temp->getNext();
       }
       //while there are no more tokens to read, empty the operator stack
-
       while(peek(operatorHead) != NULL){
         if(peek(operatorHead)->getValue() == '('){
           cout << "<Mismatched Parentheses Detected>\n";
@@ -221,7 +215,6 @@ void buildTree(BinaryNode* treeNode, Node* outputHead){
       temp = new BinaryNode(popValue(outputHead));
       //cout << "token: " << temp->getToken() << endl;
     }while(temp->getToken() == ' ');
-    //cout << "final token: " << temp->getToken() << endl;
     //cout << "popped" << temp->getValue() << endl;
     if(treeNode->getRightChild() == NULL){
       //cout << "set right child of " << treeNode->getValue() << " to " << temp->getValue() << endl;
@@ -229,6 +222,7 @@ void buildTree(BinaryNode* treeNode, Node* outputHead){
       if(isOperator(temp->getToken())){
         buildTree(temp, outputHead);
       }
+      //if the current node contains a digit, append all following nodes that also contain digits to the treeNode's character array
       else if(isdigit(temp->getToken())){
         while(outputHead != NULL && isdigit(peek(outputHead)->getValue())){
           temp->addToken((popValue(outputHead)));
@@ -241,6 +235,7 @@ void buildTree(BinaryNode* treeNode, Node* outputHead){
       if(isOperator(temp->getToken())){
         buildTree(temp, outputHead);
       }
+      //if the current node contains a digit, append all following nodes that also contain digits to the treeNode's character array
       else if(isdigit(temp->getToken())){
         while(outputHead != NULL && isdigit(peek(outputHead)->getValue())){
           temp->addToken((popValue(outputHead)));
@@ -259,7 +254,6 @@ void printPostfix(BinaryNode* treeNode){
     printPostfix(treeNode->getRightChild());
   }
   treeNode->displayValue();
-  //cout << treeNode->getValue() << ' ';
 }
 
 //prints an expression tree in infix notation
@@ -268,7 +262,6 @@ void printInfix(BinaryNode* treeNode){
     printInfix(treeNode->getLeftChild());
   }
   treeNode->displayValue();
-  //cout << treeNode->getValue() << ' ';
   if(treeNode->getRightChild() != NULL){
     printInfix(treeNode->getRightChild());
   }
@@ -277,7 +270,6 @@ void printInfix(BinaryNode* treeNode){
 //prints an expression tree in prefix notation
 void printPrefix(BinaryNode* treeNode){
   treeNode->displayValue();
-  //cout << treeNode->getValue() << ' ';
   if(treeNode->getLeftChild() != NULL){
     printPrefix(treeNode->getLeftChild());
   }

@@ -19,14 +19,17 @@ char* BinaryNode::getValue(){
   return token;
 }
 
+//returns the first character stored in the node
 char BinaryNode::getToken(){
   return token[0];
 }
 
+//adds a token to the end of the char array
 void BinaryNode::addToken(char newToken){
   token[strlen(token)] = newToken;
 }
 
+//displays the entire array backwards to display the numbers correctly
 void BinaryNode::displayValue(){
   for(int i = strlen(token) - 1; i >= 0; i--){
     cout << token[i];
