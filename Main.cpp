@@ -127,10 +127,7 @@ int main(){
       }
       //delete input nodes
       deleteAllNodes(inputHead);
-      //print out result
-      cout << "Postfix Notation: ";
-      display(outputHead);
-      cout << endl << endl;
+      cout << endl;
       //build the expression tree
       if(outputHead != NULL){
         expTreeHead = new BinaryNode(popValue(outputHead));
