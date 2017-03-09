@@ -216,20 +216,35 @@ void buildTree(BinaryNode* treeNode, Node* outputHead){
     if(treeNode->getRightChild() != NULL && treeNode->getLeftChild() != NULL){
       break;
     }
-    BinaryNode* temp = new BinaryNode(popValue(outputHead));
+    BinaryNode* temp;
+    do{
+      temp = new BinaryNode(popValue(outputHead));
+      //cout << "token: " << temp->getToken() << endl;
+    }while(temp->getToken() == ' ');
+    //cout << "final token: " << temp->getToken() << endl;
     //cout << "popped" << temp->getValue() << endl;
     if(treeNode->getRightChild() == NULL){
       //cout << "set right child of " << treeNode->getValue() << " to " << temp->getValue() << endl;
       treeNode->setRightChild(temp);
-      if(isOperator(temp->getValue())){
+      if(isOperator(temp->getToken())){
         buildTree(temp, outputHead);
+      }
+      else if(isdigit(temp->getToken())){
+        while(outputHead != NULL && isdigit(peek(outputHead)->getValue())){
+          temp->addToken((popValue(outputHead)));
+        }
       }
     }
     else if(treeNode->getLeftChild() == NULL){
       //cout << "set left child of " << treeNode->getValue() << " to " << temp->getValue() << endl;
       treeNode->setLeftChild(temp);
-      if(isOperator(temp->getValue())){
+      if(isOperator(temp->getToken())){
         buildTree(temp, outputHead);
+      }
+      else if(isdigit(temp->getToken())){
+        while(outputHead != NULL && isdigit(peek(outputHead)->getValue())){
+          temp->addToken((popValue(outputHead)));
+        }
       }
     }
   }
@@ -243,7 +258,8 @@ void printPostfix(BinaryNode* treeNode){
   if(treeNode->getRightChild() != NULL){
     printPostfix(treeNode->getRightChild());
   }
-  cout << treeNode->getValue();
+  treeNode->displayValue();
+  //cout << treeNode->getValue() << ' ';
 }
 
 //prints an expression tree in infix notation
@@ -251,7 +267,8 @@ void printInfix(BinaryNode* treeNode){
   if(treeNode->getLeftChild() != NULL){
     printInfix(treeNode->getLeftChild());
   }
-  cout << treeNode->getValue();
+  treeNode->displayValue();
+  //cout << treeNode->getValue() << ' ';
   if(treeNode->getRightChild() != NULL){
     printInfix(treeNode->getRightChild());
   }
@@ -259,7 +276,8 @@ void printInfix(BinaryNode* treeNode){
 
 //prints an expression tree in prefix notation
 void printPrefix(BinaryNode* treeNode){
-  cout << treeNode->getValue();
+  treeNode->displayValue();
+  //cout << treeNode->getValue() << ' ';
   if(treeNode->getLeftChild() != NULL){
     printPrefix(treeNode->getLeftChild());
   }
@@ -352,7 +370,7 @@ void display(Node* current){
 //checks if the user input is valid
 bool isValidInput(char* input){
   for(int i = 0; i < strlen(input); i++){
-    if(!(isdigit(input[i]) || input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/' || input[i] == '(' || input[i] == ')' || input[i] == '^')){
+    if(!(isdigit(input[i]) || input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/' || input[i] == '(' || input[i] == ')' || input[i] == '^' || input[i] == ' ')){
       return false;
     }
   }
